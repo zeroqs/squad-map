@@ -1,11 +1,26 @@
+import Link from 'next/link'
+
+import { Content } from '@/domains/landing/Content'
+import { Button } from '@/shared/ui/button'
+import { Header } from '@/shared/ui/Header'
 import { ModeToggle } from '@/shared/ui/ModeToggle'
 
 // eslint-disable-next-line import/no-default-export
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      1
-      <ModeToggle />
-    </main>
+    <>
+      <Header>
+        <Header.LeftSide>
+          <Link href="/">SquadTactics</Link>
+        </Header.LeftSide>
+        <Header.RightSide>
+          <ModeToggle />
+          <Button asChild>
+            <Link href="/dashboard">Let's go</Link>
+          </Button>
+        </Header.RightSide>
+      </Header>
+      <Content />
+    </>
   )
 }
