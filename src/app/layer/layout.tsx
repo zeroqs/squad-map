@@ -6,11 +6,11 @@ import { Header } from '@/shared/ui/Header'
 import { ModeToggle } from '@/shared/ui/ModeToggle'
 
 export const metadata: Metadata = {
-  title: 'Dashboard',
-  description: 'Create and share squad tactics',
+  title: 'Layer',
+  description: 'Creating strategy',
 }
 
-export default function DashboardLayout({
+export default function LayerLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
@@ -28,7 +28,7 @@ export default function DashboardLayout({
         </Header.RightSide>
       </Header>
 
-      <main className="max-w-7xl m-auto p-4">{children}</main>
+      <main className="max-w-[1800px] m-auto p-4">{children}</main>
     </>
   )
 }

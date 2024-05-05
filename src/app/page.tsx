@@ -1,9 +1,9 @@
 import Link from 'next/link'
 
-import { Content } from '@/domains/landing/Content'
 import { Button } from '@/shared/ui/button'
 import { Header } from '@/shared/ui/Header'
 import { ModeToggle } from '@/shared/ui/ModeToggle'
+import { Content } from '@/widgets/landing/Content'
 
 // eslint-disable-next-line import/no-default-export
 export default function Home() {
