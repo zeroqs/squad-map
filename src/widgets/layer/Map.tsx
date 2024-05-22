@@ -1,11 +1,12 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 'use client'
 
-import { StaticImageData } from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import NextImage, { StaticImageData } from 'next/image'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 
 import layer from '@/../public/FoolsRoad.webp'
+import IconInf from '@/../public/infantry.png'
 
 interface MapProps {
   selectedIcon: StaticImageData | null
@@ -13,27 +14,22 @@ interface MapProps {
 
 export const Map = ({ selectedIcon }: MapProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [clickedPoint, setClickedPoint] = useState<{
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const [icons, setIcons] = useState<{ x: number; y: number }[]>([])
+  const [movingIconIndex, setMovingIconIndex] = useState<number | null>(null)
+  const [startPosition, setStartPosition] = useState<{
     x: number
     y: number
   } | null>(null)
-  const [icons, setIcons] = useState<{ x: number; y: number }[]>([])
-  const [movingIconIndex, setMovingIconIndex] = useState<number | null>(null)
 
   useEffect(() => {
-    // define a custom handler function
-    // for the contextmenu event
     const handleContextMenu = (e: any) => {
-      // prevent the right-click menu from appearing
       e.preventDefault()
     }
 
-    // attach the event listener to
-    // the document object
     document.addEventListener('contextmenu', handleContextMenu)
 
-    // clean up the event listener when
-    // the component unmounts
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu)
     }
@@ -43,12 +39,10 @@ export const Map = ({ selectedIcon }: MapProps) => {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    // Устанавливаем размеры canvas равными размерам его контейнера
     const container = canvas.parentElement
     canvas.width = container!.clientWidth
     canvas.height = container!.clientHeight
 
-    // Перерисовываем изображение при изменении размеров
     const context = canvas.getContext('2d')
     const image = new Image()
     image.src = layer.src
@@ -57,59 +51,80 @@ export const Map = ({ selectedIcon }: MapProps) => {
     })
   }, [])
 
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas || !selectedIcon || !clickedPoint) return
-
-    const context = canvas.getContext('2d')
-    const iconImage = new Image()
-    iconImage.src = selectedIcon.src
-    iconImage.addEventListener('load', () => {
-      context!.drawImage(
-        iconImage,
-        clickedPoint.x - 20,
-        clickedPoint.y - 20,
-        30,
-        30,
-      )
-    })
-  }, [selectedIcon, clickedPoint, icons, movingIconIndex])
-
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current
-    if (!canvas || !selectedIcon) return
+    const container = containerRef.current
+    if (!container) return
 
-    const rect = canvas.getBoundingClientRect()
-    const scaleX = canvas.width / rect.width
-    const scaleY = canvas.height / rect.height
-    const offsetX = rect.left
-    const offsetY = rect.top
-    const x = (e.clientX - offsetX) * scaleX
-    const y = (e.clientY - offsetY) * scaleY
+    const rect = container.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
 
-    // Проверяем, попал ли клик внутрь какой-либо из существующих иконок
-    const iconIndex = icons.findIndex((icon) => {
-      return (
-        x >= icon.x - 15 &&
-        x <= icon.x + 15 &&
-        y >= icon.y - 15 &&
-        y <= icon.y + 15
-      )
-    })
-
-    if (iconIndex !== -1) {
-      setMovingIconIndex(iconIndex)
-    } else {
-      setClickedPoint({ x, y })
-      setIcons([...icons, { x, y }])
-    }
+    setIcons([...icons, { x, y }])
   }
+
+  const handleMouseDown = (
+    index: number,
+    e: React.MouseEvent<HTMLDivElement>,
+  ) => {
+    e.preventDefault()
+    setMovingIconIndex(index)
+    setStartPosition({ x: e.clientX, y: e.clientY })
+  }
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (movingIconIndex === null || !startPosition) return
+
+      const dx = e.clientX - startPosition.x
+      const dy = e.clientY - startPosition.y
+
+      const container = containerRef.current
+      if (!container) return
+
+      const rect = container.getBoundingClientRect()
+
+      setIcons((prevIcons) =>
+        prevIcons.map((icon, index) => {
+          if (index === movingIconIndex) {
+            let newX = icon.x + dx
+            let newY = icon.y + dy
+
+            // Ensure the icon stays within the bounds of the container
+            newX = Math.max(10, Math.min(newX, rect.width - 10))
+            newY = Math.max(10, Math.min(newY, rect.height))
+
+            return { x: newX, y: newY }
+          }
+          return icon
+        }),
+      )
+
+      setStartPosition({ x: e.clientX, y: e.clientY })
+    },
+    [movingIconIndex, startPosition],
+  )
+
+  const handleMouseUp = () => {
+    setMovingIconIndex(null)
+    setStartPosition(null)
+  }
+
+  useEffect(() => {
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [handleMouseMove])
 
   return (
     <TransformWrapper>
       <TransformComponent>
         <div
-          style={{ width: '800px', height: '800px' }}
+          ref={containerRef}
+          style={{ width: '800px', height: '800px', position: 'relative' }}
           onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
             if (e.button === 0) {
               e.preventDefault()
@@ -122,6 +137,20 @@ export const Map = ({ selectedIcon }: MapProps) => {
             ref={canvasRef}
             onClick={handleCanvasClick}
           />
+          {icons.map((icon, index) => (
+            <div
+              key={index}
+              className="absolute"
+              style={{
+                left: icon.x - 10,
+                top: icon.y - 10,
+                cursor: 'grab',
+              }}
+              onMouseDown={(e) => handleMouseDown(index, e)}
+            >
+              <NextImage width={20} height={20} src={IconInf} alt="infantry" />
+            </div>
+          ))}
         </div>
       </TransformComponent>
     </TransformWrapper>
