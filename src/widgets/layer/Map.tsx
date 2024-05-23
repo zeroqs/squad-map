@@ -1,22 +1,28 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 'use client'
 
-import NextImage, { StaticImageData } from 'next/image'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 
 import layer from '@/../public/FoolsRoad.webp'
-import IconInf from '@/../public/infantry.png'
+import { Icons } from '@/shared/icons/Icons'
 
 interface MapProps {
-  selectedIcon: StaticImageData | null
+  selectedIcon: IconType
+}
+
+interface Icon {
+  id: string
+  x: number
+  y: number
+  iconType: IconType
 }
 
 export const Map = ({ selectedIcon }: MapProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const [icons, setIcons] = useState<{ x: number; y: number }[]>([])
+  const [icons, setIcons] = useState<Icon[]>([])
   const [movingIconIndex, setMovingIconIndex] = useState<number | null>(null)
   const [startPosition, setStartPosition] = useState<{
     x: number
@@ -56,10 +62,13 @@ export const Map = ({ selectedIcon }: MapProps) => {
     if (!container) return
 
     const rect = container.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const x = e.clientX - rect.left - 5
+    const y = e.clientY - rect.top - 5
 
-    setIcons([...icons, { x, y }])
+    setIcons([
+      ...icons,
+      { x, y, iconType: selectedIcon, id: crypto.randomUUID() },
+    ])
   }
 
   const handleMouseDown = (
@@ -93,7 +102,7 @@ export const Map = ({ selectedIcon }: MapProps) => {
             newX = Math.max(10, Math.min(newX, rect.width - 10))
             newY = Math.max(10, Math.min(newY, rect.height))
 
-            return { x: newX, y: newY }
+            return { x: newX, y: newY, iconType: icon.iconType, id: icon.id }
           }
           return icon
         }),
@@ -148,7 +157,7 @@ export const Map = ({ selectedIcon }: MapProps) => {
               }}
               onMouseDown={(e) => handleMouseDown(index, e)}
             >
-              <NextImage width={20} height={20} src={IconInf} alt="infantry" />
+              <Icons iconType={icon.iconType} />
             </div>
           ))}
         </div>

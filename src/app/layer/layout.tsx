@@ -2,6 +2,7 @@ import { UserButton } from '@clerk/nextjs'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+import { Button } from '@/shared/ui/button'
 import { Header } from '@/shared/ui/Header'
 import { ModeToggle } from '@/shared/ui/ModeToggle'
 
@@ -23,6 +24,7 @@ export default function LayerLayout({
           <Link href="/dashboard"> / Dashboard</Link>
         </Header.LeftSide>
         <Header.RightSide>
+          <Button>Save</Button>
           <ModeToggle />
           <UserButton />
         </Header.RightSide>
