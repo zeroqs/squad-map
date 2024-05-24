@@ -9,6 +9,7 @@ import { Map } from '@/widgets/layer/Map'
 
 export default function Layer({ params }: { params: { slug: string } }) {
   const [selectedIcon, setSelectedIcon] = useState<IconType>('infantry')
+  const [selectedColor, setSelectedColor] = useState('#fff')
 
   const onChangeIcon = (value: IconType) => {
     setSelectedIcon(value)
@@ -19,7 +20,7 @@ export default function Layer({ params }: { params: { slug: string } }) {
       <div className="flex justify-between">
         <Map selectedIcon={selectedIcon} />
 
-        <div className="p-4">
+        <div className="p-4 ">
           <div>
             <h1>Current icon</h1>
           </div>

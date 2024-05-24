@@ -1,5 +1,4 @@
-import { HabIcon } from '@/shared/icons/HabIcon'
-import { InfantryIcon } from '@/shared/icons/InfantryIcon'
+import { Icons } from '@/shared/icons/Icons'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/toggle-group'
 
 interface IconPickerProps {
@@ -16,10 +15,13 @@ export const IconPicker = ({ icon, onChange }: IconPickerProps) => {
             type="single"
         >
             <ToggleGroupItem value="infantry" aria-label="Toggle infantry">
-                <InfantryIcon />
+                <Icons iconType="infantry" />
             </ToggleGroupItem>
             <ToggleGroupItem value="hab" aria-label="Toggle hab">
-                <HabIcon />
+                <Icons iconType="hab" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="fob" aria-label="Toggle fob">
+                <Icons iconType="fob" />
             </ToggleGroupItem>
         </ToggleGroup>
     )

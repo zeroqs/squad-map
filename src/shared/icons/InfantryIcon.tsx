@@ -1,4 +1,4 @@
-export const InfantryIcon = ({ fill = '#f8f8f8' }: IconProps) => {
+export const InfantryIcon = ({ fill }: IconProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
