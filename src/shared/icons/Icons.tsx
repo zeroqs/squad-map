@@ -1,4 +1,4 @@
-import { useTheme } from 'next-themes'
+import { MdDelete } from 'react-icons/md'
 
 import { FobIcon } from '@/shared/icons/FobIcon'
 import { HabIcon } from '@/shared/icons/HabIcon'
@@ -10,10 +10,6 @@ interface IconsProps {
 }
 
 export const Icons = ({ iconType, color }: IconsProps) => {
-  const { theme } = useTheme()
-
-  const isLightTheme = theme === 'light'
-  const lightBgColor = isLightTheme ? '#09090B' : '#f8f8f8'
   let currentIcon: JSX.Element
 
   switch (iconType) {
@@ -25,6 +21,9 @@ export const Icons = ({ iconType, color }: IconsProps) => {
       break
     case 'fob':
       currentIcon = <FobIcon fill={color} />
+      break
+    case 'delete':
+      currentIcon = <MdDelete />
       break
     default:
       currentIcon = <InfantryIcon fill={color} />

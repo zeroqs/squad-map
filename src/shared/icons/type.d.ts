@@ -2,4 +2,4 @@ interface IconProps {
   fill?: string
 }
 
-type IconType = 'infantry' | 'hab' | 'fob'
+type IconType = 'infantry' | 'hab' | 'fob' | 'delete'

@@ -9,6 +9,7 @@ import { Icons } from '@/shared/icons/Icons'
 
 interface MapProps {
   selectedIcon: IconDto
+  actionIsDelete: boolean
 }
 
 interface Icon {
@@ -19,7 +20,7 @@ interface Icon {
   color: string
 }
 
-export const Map = ({ selectedIcon }: MapProps) => {
+export const Map = ({ selectedIcon, actionIsDelete }: MapProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -35,37 +36,10 @@ export const Map = ({ selectedIcon }: MapProps) => {
     y: number
   } | null>(null)
 
-  useEffect(() => {
-    const handleContextMenu = (e: any) => {
-      e.preventDefault()
-    }
-
-    document.addEventListener('contextmenu', handleContextMenu)
-
-    return () => {
-      document.removeEventListener('contextmenu', handleContextMenu)
-    }
-  }, [])
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const container = canvas.parentElement
-    canvas.width = container!.clientWidth
-    canvas.height = container!.clientHeight
-
-    const context = canvas.getContext('2d')
-    const image = new Image()
-    image.src = layer.src
-    image.addEventListener('load', () => {
-      context!.drawImage(image, 0, 0, canvas.width, canvas.height)
-    })
-  }, [])
-
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const container = containerRef.current
     if (!container) return
+    if (actionIsDelete) return
 
     const rect = container.getBoundingClientRect()
     const x = (e.clientX - rect.left - 5) / scale
@@ -87,6 +61,7 @@ export const Map = ({ selectedIcon }: MapProps) => {
     index: number,
     e: React.MouseEvent<HTMLDivElement>,
   ) => {
+    if (actionIsDelete) return
     e.preventDefault()
     setMovingIconIndex(index)
     setStartPosition({ x: e.clientX, y: e.clientY })
@@ -95,7 +70,12 @@ export const Map = ({ selectedIcon }: MapProps) => {
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      if (movingIconIndex === null || !startPosition || !movingIconPosition)
+      if (
+        movingIconIndex === null ||
+        !startPosition ||
+        !movingIconPosition ||
+        actionIsDelete
+      )
         return
 
       const dx = (e.clientX - startPosition.x) / scale
@@ -126,6 +106,39 @@ export const Map = ({ selectedIcon }: MapProps) => {
     setMovingIconPosition(null)
   }
 
+  const handleDelete = (deleteId: string) => {
+    if (!actionIsDelete) return
+    setIcons(icons.filter((icon) => icon.id !== deleteId))
+  }
+
+  useEffect(() => {
+    const handleContextMenu = (e: any) => {
+      e.preventDefault()
+    }
+
+    document.addEventListener('contextmenu', handleContextMenu)
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu)
+    }
+  }, [])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const container = canvas.parentElement
+    canvas.width = container!.clientWidth
+    canvas.height = container!.clientHeight
+
+    const context = canvas.getContext('2d')
+    const image = new Image()
+    image.src = layer.src
+    image.addEventListener('load', () => {
+      context!.drawImage(image, 0, 0, canvas.width, canvas.height)
+    })
+  }, [])
+
   useEffect(() => {
     document.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseup', handleMouseUp)
@@ -140,6 +153,7 @@ export const Map = ({ selectedIcon }: MapProps) => {
     ({ icon, index }: { icon: Icon; index: number }) => (
       <div
         className="absolute"
+        onClick={() => handleDelete(icon.id)}
         style={{
           left:
             (movingIconIndex === index && movingIconPosition
@@ -149,7 +163,7 @@ export const Map = ({ selectedIcon }: MapProps) => {
             (movingIconIndex === index && movingIconPosition
               ? movingIconPosition.y
               : icon.y) - 10,
-          cursor: 'grab',
+          cursor: actionIsDelete ? 'pointer' : 'grab',
         }}
         onMouseDown={(e) => handleMouseDown(index, e)}
       >

@@ -2,10 +2,12 @@
 'use client'
 
 import { useState } from 'react'
+import { MdDelete } from 'react-icons/md'
 
 import { IconPicker } from '@/app/layer/components/ControlsPanel/IconPicker/IconPicker'
 import { Icons } from '@/shared/icons/Icons'
 import { GradientPicker } from '@/shared/ui/color-picker'
+import { Toggle } from '@/shared/ui/toggle'
 import { Map } from '@/widgets/layer/Map'
 
 export interface IconDto {
@@ -21,6 +23,7 @@ const defaultState: IconDto = {
 export default function Layer({ params }: { params: { slug: string } }) {
   const [selectedIcon, setSelectedIcon] = useState<IconDto>(defaultState)
   const [selectedColor, setSelectedColor] = useState('#fff')
+  const [actionIsDelete, setActionDelete] = useState(false)
 
   const onChangeIcon = (value: IconType) => {
     setSelectedIcon({
@@ -38,13 +41,24 @@ export default function Layer({ params }: { params: { slug: string } }) {
     })
   }
 
+  const handleDelete = () => {
+    setActionDelete(!actionIsDelete)
+  }
+
   return (
     <>
       <div className="flex justify-between">
-        <Map selectedIcon={selectedIcon} />
+        <Map selectedIcon={selectedIcon} actionIsDelete={actionIsDelete} />
 
         <div className="p-4">
           <div className="flex gap-4">
+            <div>
+              <h1>Action</h1>
+              <Toggle onClick={handleDelete} variant="outline">
+                <MdDelete size={18} aria-label="Delete" />
+              </Toggle>
+            </div>
+
             <div>
               <h1>Current color</h1>
 
