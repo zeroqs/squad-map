@@ -88,6 +88,7 @@ export const CreateLayer = () => {
             <Image
               className="animate-fade"
               src={loadSelectedImage()}
+              placeholder="blur"
               alt="Map picture"
             />
           ) : (

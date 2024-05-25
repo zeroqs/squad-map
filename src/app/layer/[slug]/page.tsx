@@ -50,7 +50,7 @@ export default function Layer({ params }: { params: { slug: string } }) {
       <div className="flex justify-between">
         <Map selectedIcon={selectedIcon} actionIsDelete={actionIsDelete} />
 
-        <div className="p-4">
+        <div className="p-4 animate-fade animate-delay-200">
           <div className="flex gap-4">
             <div>
               <h1>Action</h1>

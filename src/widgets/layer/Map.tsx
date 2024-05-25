@@ -176,6 +176,7 @@ export const Map = ({ selectedIcon, actionIsDelete }: MapProps) => {
     <TransformWrapper onTransformed={(e) => setScale(e.state.scale)}>
       <TransformComponent>
         <div
+          className="animate-fade animate-delay-200"
           ref={containerRef}
           style={{ width: '800px', height: '800px', position: 'relative' }}
           onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
