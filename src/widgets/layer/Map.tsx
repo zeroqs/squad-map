@@ -1,14 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-'use client'
-
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
 
 import layer from '@/../public/FoolsRoad.webp'
+import { IconDto } from '@/app/layer/[slug]/page'
 import { Icons } from '@/shared/icons/Icons'
 
 interface MapProps {
-  selectedIcon: IconType
+  selectedIcon: IconDto
 }
 
 interface Icon {
@@ -16,6 +16,7 @@ interface Icon {
   x: number
   y: number
   iconType: IconType
+  color: string
 }
 
 export const Map = ({ selectedIcon }: MapProps) => {
@@ -23,8 +24,13 @@ export const Map = ({ selectedIcon }: MapProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const [icons, setIcons] = useState<Icon[]>([])
+  const [scale, setScale] = useState(1)
   const [movingIconIndex, setMovingIconIndex] = useState<number | null>(null)
   const [startPosition, setStartPosition] = useState<{
+    x: number
+    y: number
+  } | null>(null)
+  const [movingIconPosition, setMovingIconPosition] = useState<{
     x: number
     y: number
   } | null>(null)
@@ -62,12 +68,18 @@ export const Map = ({ selectedIcon }: MapProps) => {
     if (!container) return
 
     const rect = container.getBoundingClientRect()
-    const x = e.clientX - rect.left - 5
-    const y = e.clientY - rect.top - 5
+    const x = (e.clientX - rect.left - 5) / scale
+    const y = (e.clientY - rect.top - 5) / scale
 
     setIcons([
       ...icons,
-      { x, y, iconType: selectedIcon, id: crypto.randomUUID() },
+      {
+        x,
+        y,
+        iconType: selectedIcon.type,
+        id: crypto.randomUUID(),
+        color: selectedIcon.color,
+      },
     ])
   }
 
@@ -78,44 +90,40 @@ export const Map = ({ selectedIcon }: MapProps) => {
     e.preventDefault()
     setMovingIconIndex(index)
     setStartPosition({ x: e.clientX, y: e.clientY })
+    setMovingIconPosition({ x: icons[index].x, y: icons[index].y })
   }
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      if (movingIconIndex === null || !startPosition) return
+      if (movingIconIndex === null || !startPosition || !movingIconPosition)
+        return
 
-      const dx = e.clientX - startPosition.x
-      const dy = e.clientY - startPosition.y
+      const dx = (e.clientX - startPosition.x) / scale
+      const dy = (e.clientY - startPosition.y) / scale
 
-      const container = containerRef.current
-      if (!container) return
-
-      const rect = container.getBoundingClientRect()
-
-      setIcons((prevIcons) =>
-        prevIcons.map((icon, index) => {
-          if (index === movingIconIndex) {
-            let newX = icon.x + dx
-            let newY = icon.y + dy
-
-            // Ensure the icon stays within the bounds of the container
-            newX = Math.max(10, Math.min(newX, rect.width - 10))
-            newY = Math.max(10, Math.min(newY, rect.height))
-
-            return { x: newX, y: newY, iconType: icon.iconType, id: icon.id }
-          }
-          return icon
-        }),
-      )
+      setMovingIconPosition({
+        x: movingIconPosition.x + dx,
+        y: movingIconPosition.y + dy,
+      })
 
       setStartPosition({ x: e.clientX, y: e.clientY })
     },
-    [movingIconIndex, startPosition],
+    [movingIconIndex, startPosition, movingIconPosition, scale],
   )
 
   const handleMouseUp = () => {
+    if (movingIconIndex !== null && movingIconPosition) {
+      setIcons((prevIcons) =>
+        prevIcons.map((icon, index) =>
+          index === movingIconIndex
+            ? { ...icon, x: movingIconPosition.x, y: movingIconPosition.y }
+            : icon,
+        ),
+      )
+    }
     setMovingIconIndex(null)
     setStartPosition(null)
+    setMovingIconPosition(null)
   }
 
   useEffect(() => {
@@ -128,8 +136,30 @@ export const Map = ({ selectedIcon }: MapProps) => {
     }
   }, [handleMouseMove])
 
+  const MemoizedIcon = memo(
+    ({ icon, index }: { icon: Icon; index: number }) => (
+      <div
+        className="absolute"
+        style={{
+          left:
+            (movingIconIndex === index && movingIconPosition
+              ? movingIconPosition.x
+              : icon.x) - 10,
+          top:
+            (movingIconIndex === index && movingIconPosition
+              ? movingIconPosition.y
+              : icon.y) - 10,
+          cursor: 'grab',
+        }}
+        onMouseDown={(e) => handleMouseDown(index, e)}
+      >
+        <Icons color={icon.color} iconType={icon.iconType} />
+      </div>
+    ),
+  )
+
   return (
-    <TransformWrapper>
+    <TransformWrapper onTransformed={(e) => setScale(e.state.scale)}>
       <TransformComponent>
         <div
           ref={containerRef}
@@ -147,18 +177,7 @@ export const Map = ({ selectedIcon }: MapProps) => {
             onClick={handleCanvasClick}
           />
           {icons.map((icon, index) => (
-            <div
-              key={index}
-              className="absolute"
-              style={{
-                left: icon.x - 10,
-                top: icon.y - 10,
-                cursor: 'grab',
-              }}
-              onMouseDown={(e) => handleMouseDown(index, e)}
-            >
-              <Icons iconType={icon.iconType} />
-            </div>
+            <MemoizedIcon key={icon.id} icon={icon} index={index} />
           ))}
         </div>
       </TransformComponent>
