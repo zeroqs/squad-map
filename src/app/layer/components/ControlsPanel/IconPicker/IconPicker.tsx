@@ -24,6 +24,12 @@ export const IconPicker = ({ icon, onChange }: IconPickerProps) => {
       <ToggleGroupItem value="fob" aria-label="Toggle fob">
         <Icons color={icon.color} iconType="fob" />
       </ToggleGroupItem>
+      <ToggleGroupItem value="rally" aria-label="Toggle rally">
+        <Icons color={icon.color} iconType="rally" />
+      </ToggleGroupItem>
+      <ToggleGroupItem value="mortar" aria-label="Toggle mortar">
+        <Icons color={icon.color} iconType="mortar" />
+      </ToggleGroupItem>
     </ToggleGroup>
   )
 }

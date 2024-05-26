@@ -3,6 +3,8 @@ import { MdDelete } from 'react-icons/md'
 import { FobIcon } from '@/shared/icons/FobIcon'
 import { HabIcon } from '@/shared/icons/HabIcon'
 import { InfantryIcon } from '@/shared/icons/InfantryIcon'
+import { MortarIcon } from '@/shared/icons/MortarIcon'
+import { RallyIcon } from '@/shared/icons/RallyIcon'
 
 interface IconsProps {
   iconType: IconType
@@ -24,6 +26,12 @@ export const Icons = ({ iconType, color }: IconsProps) => {
       break
     case 'delete':
       currentIcon = <MdDelete />
+      break
+    case 'rally':
+      currentIcon = <RallyIcon fill={color} />
+      break
+    case 'mortar':
+      currentIcon = <MortarIcon fill={color} />
       break
     default:
       currentIcon = <InfantryIcon fill={color} />
