@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import { Header } from '@/shared/ui/Header'
-import { ModeToggle } from '@/shared/ui/ModeToggle'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -23,7 +22,6 @@ export default function DashboardLayout({
           <Link href="/dashboard"> / Dashboard</Link>
         </Header.LeftSide>
         <Header.RightSide>
-          <ModeToggle />
           <UserButton />
         </Header.RightSide>
       </Header>

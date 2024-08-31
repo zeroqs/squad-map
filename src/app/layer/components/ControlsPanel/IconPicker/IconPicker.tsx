@@ -16,46 +16,46 @@ export const IconPicker = ({ icon, onChange }: IconPickerProps) => {
       type="single"
     >
       <ToggleGroupItem value="infantry" aria-label="Toggle infantry">
-        <Icons color={icon.color} iconType="infantry" />
+        <Icons color="#fff" iconType="infantry" />
       </ToggleGroupItem>
 
       <ToggleGroupItem value="hab" aria-label="Toggle hab">
-        <Icons color={icon.color} iconType="hab" />
+        <Icons color="#fff" iconType="hab" />
       </ToggleGroupItem>
 
       <ToggleGroupItem value="fob" aria-label="Toggle fob">
-        <Icons color={icon.color} iconType="fob" />
+        <Icons color="#fff" iconType="fob" />
       </ToggleGroupItem>
 
       <ToggleGroupItem value="rally" aria-label="Toggle rally">
-        <Icons color={icon.color} iconType="rally" />
+        <Icons color="#fff" iconType="rally" />
       </ToggleGroupItem>
 
       <ToggleGroupItem value="mortar" aria-label="Toggle mortar">
-        <Icons color={icon.color} iconType="mortar" />
+        <Icons color="#fff" iconType="mortar" />
       </ToggleGroupItem>
 
       <ToggleGroupItem value="truck" aria-label="Toggle truck">
-        <Icons color={icon.color} iconType="truck" />
+        <Icons color="#fff" iconType="truck" />
       </ToggleGroupItem>
 
       <ToggleGroupItem value="truck-supply" aria-label="Toggle truck-supply">
-        <Icons color={icon.color} iconType="truck-supply" />
+        <Icons color="#fff" iconType="truck-supply" />
       </ToggleGroupItem>
 
       <ToggleGroupItem value="mrap" aria-label="Toggle mrap">
-        <Icons color={icon.color} iconType="mrap" />
+        <Icons color="#fff" iconType="mrap" />
       </ToggleGroupItem>
 
       <ToggleGroupItem value="closed-mrap" aria-label="Toggle closed-mrap">
-        <Icons color={icon.color} iconType="closed-mrap" />
+        <Icons color="#fff" iconType="closed-mrap" />
       </ToggleGroupItem>
 
       <ToggleGroupItem value="striker" aria-label="Toggle striker">
-        <Icons color={icon.color} iconType="striker" />
+        <Icons color="#fff" iconType="striker" />
       </ToggleGroupItem>
       <ToggleGroupItem value="bradley" aria-label="Toggle bradley">
-        <Icons color={icon.color} iconType="bradley" />
+        <Icons color="#fff" iconType="bradley" />
       </ToggleGroupItem>
     </ToggleGroup>
   )

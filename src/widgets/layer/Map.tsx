@@ -1,201 +1,84 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
-import { TransformComponent, TransformWrapper } from 'react-zoom-pan-pinch'
+import React, { useState } from 'react'
+import { Image as KonvaImage, Layer, Stage } from 'react-konva'
+import useImage from 'use-image'
 
-import layer from '@/../public/FoolsRoad.webp'
+import layer from '@/../public/Narva.webp'
 import { IconDto } from '@/app/layer/[slug]/page'
-import { Icons } from '@/shared/icons/Icons'
+import { Icons, IconsString } from '@/shared/icons/Icons'
 
 interface MapProps {
   selectedIcon: IconDto
   actionIsDelete: boolean
 }
 
-interface Icon {
+interface Icons {
   id: string
   x: number
   y: number
-  iconType: IconType
+  width: number
+  height: number
+  type: IconType
   color: string
 }
 
 export const Map = ({ selectedIcon, actionIsDelete }: MapProps) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [image] = useImage(layer.src)
+  const [icons, setIcons] = useState<Icons[]>([])
 
-  const [icons, setIcons] = useState<Icon[]>([])
-  const [scale, setScale] = useState(1)
-  const [movingIconIndex, setMovingIconIndex] = useState<number | null>(null)
-  const [startPosition, setStartPosition] = useState<{
-    x: number
-    y: number
-  } | null>(null)
-  const [movingIconPosition, setMovingIconPosition] = useState<{
-    x: number
-    y: number
-  } | null>(null)
+  const handleClick = (e: any) => {
+    const { x, y } = e.target.getStage().getPointerPosition()
 
-  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const container = containerRef.current
-    if (!container) return
-    if (actionIsDelete) return
-
-    const rect = container.getBoundingClientRect()
-    const x = (e.clientX - rect.left - 5) / scale
-    const y = (e.clientY - rect.top - 5) / scale
-
-    setIcons([
-      ...icons,
-      {
-        x,
-        y,
-        iconType: selectedIcon.type,
-        id: crypto.randomUUID(),
-        color: selectedIcon.color,
-      },
-    ])
-  }
-
-  const handleMouseDown = (
-    index: number,
-    e: React.MouseEvent<HTMLDivElement>,
-  ) => {
-    if (actionIsDelete) return
-    e.preventDefault()
-    setMovingIconIndex(index)
-    setStartPosition({ x: e.clientX, y: e.clientY })
-    setMovingIconPosition({ x: icons[index].x, y: icons[index].y })
-  }
-
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (
-        movingIconIndex === null ||
-        !startPosition ||
-        !movingIconPosition ||
-        actionIsDelete
-      )
-        return
-
-      const dx = (e.clientX - startPosition.x) / scale
-      const dy = (e.clientY - startPosition.y) / scale
-
-      setMovingIconPosition({
-        x: movingIconPosition.x + dx,
-        y: movingIconPosition.y + dy,
-      })
-
-      setStartPosition({ x: e.clientX, y: e.clientY })
-    },
-    [movingIconIndex, startPosition, movingIconPosition, scale],
-  )
-
-  const handleMouseUp = () => {
-    if (movingIconIndex !== null && movingIconPosition) {
+    if (actionIsDelete) {
       setIcons((prevIcons) =>
-        prevIcons.map((icon, index) =>
-          index === movingIconIndex
-            ? { ...icon, x: movingIconPosition.x, y: movingIconPosition.y }
-            : icon,
+        prevIcons.filter(
+          (icon) =>
+            !(
+              x >= icon.x &&
+              x <= icon.x + icon.width &&
+              y >= icon.y &&
+              y <= icon.y + icon.height
+            ),
         ),
       )
+    } else {
+      const newIcon = {
+        id: `${icons.length + 1}`,
+        x: x - 15,
+        y: y - 15,
+        width: 30,
+        height: 30,
+        type: selectedIcon.type,
+        color: selectedIcon.color,
+      }
+
+      setIcons([...icons, newIcon])
     }
-    setMovingIconIndex(null)
-    setStartPosition(null)
-    setMovingIconPosition(null)
   }
-
-  const handleDelete = (deleteId: string) => {
-    if (!actionIsDelete) return
-    setIcons(icons.filter((icon) => icon.id !== deleteId))
-  }
-
-  useEffect(() => {
-    const handleContextMenu = (e: any) => {
-      e.preventDefault()
-    }
-
-    document.addEventListener('contextmenu', handleContextMenu)
-
-    return () => {
-      document.removeEventListener('contextmenu', handleContextMenu)
-    }
-  }, [])
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const container = canvas.parentElement
-    canvas.width = container!.clientWidth
-    canvas.height = container!.clientHeight
-
-    const context = canvas.getContext('2d')
-    const image = new Image()
-    image.src = layer.src
-    image.addEventListener('load', () => {
-      context!.drawImage(image, 0, 0, canvas.width, canvas.height)
-    })
-  }, [])
-
-  useEffect(() => {
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-    }
-  }, [handleMouseMove])
-
-  const MemoizedIcon = memo(
-    ({ icon, index }: { icon: Icon; index: number }) => (
-      <div
-        className="absolute"
-        onClick={() => handleDelete(icon.id)}
-        style={{
-          left:
-            (movingIconIndex === index && movingIconPosition
-              ? movingIconPosition.x
-              : icon.x) - 10,
-          top:
-            (movingIconIndex === index && movingIconPosition
-              ? movingIconPosition.y
-              : icon.y) - 10,
-          cursor: actionIsDelete ? 'pointer' : 'grab',
-        }}
-        onMouseDown={(e) => handleMouseDown(index, e)}
-      >
-        <Icons color={icon.color} iconType={icon.iconType} />
-      </div>
-    ),
-  )
 
   return (
-    <TransformWrapper onTransformed={(e) => setScale(e.state.scale)}>
-      <TransformComponent>
-        <div
-          className="animate-fade animate-delay-200"
-          ref={containerRef}
-          style={{ width: '800px', height: '800px', position: 'relative' }}
-          onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
-            if (e.button === 0) {
-              e.preventDefault()
-              e.stopPropagation()
-            }
-          }}
-        >
-          <canvas
-            className="rounded-2xl"
-            ref={canvasRef}
-            onClick={handleCanvasClick}
+    <Stage width={800} height={800} onClick={handleClick}>
+      <Layer>
+        <KonvaImage image={image} width={800} height={800} />
+
+        {icons.map((el) => (
+          <KonvaImage
+            key={el.id}
+            x={el.x}
+            y={el.y}
+            draggable
+            image={createImageFromSVG(el.type, el.color)}
           />
-          {icons.map((icon, index) => (
-            <MemoizedIcon key={icon.id} icon={icon} index={index} />
-          ))}
-        </div>
-      </TransformComponent>
-    </TransformWrapper>
+        ))}
+      </Layer>
+    </Stage>
   )
+}
+
+const createImageFromSVG = (iconType: IconType, color: string) => {
+  const svgString = IconsString({ iconType, color })
+  const svgBase64 = `data:image/svg+xml;base64,${btoa(svgString)}`
+  const img = new Image()
+  img.src = svgBase64
+
+  return img
 }

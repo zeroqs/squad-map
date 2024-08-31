@@ -50,6 +50,9 @@ dependencies:
   clsx:
     specifier: ^2.1.1
     version: 2.1.1
+  konva:
+    specifier: ^9.3.14
+    version: 9.3.14
   next:
     specifier: 14.2.3
     version: 14.2.3(@babel/core@7.24.6)(react-dom@18.3.1)(react@18.3.1)
@@ -68,6 +71,9 @@ dependencies:
   react-icons:
     specifier: ^5.2.0
     version: 5.2.1(react@18.3.1)
+  react-konva:
+    specifier: ^18.2.10
+    version: 18.2.10(konva@9.3.14)(react-dom@18.3.1)(react@18.3.1)
   react-zoom-pan-pinch:
     specifier: ^3.4.4
     version: 3.4.4(react-dom@18.3.1)(react@18.3.1)
@@ -77,6 +83,9 @@ dependencies:
   typeit-react:
     specifier: ^2.7.1
     version: 2.7.1
+  use-image:
+    specifier: ^1.1.1
+    version: 1.1.1(react-dom@18.3.1)(react@18.3.1)
 
 devDependencies:
   '@types/node':
@@ -94,6 +103,9 @@ devDependencies:
   eslint-kit:
     specifier: ^10.29.0
     version: 10.31.0(effector@23.2.2)(eslint@8.57.0)(prettier@3.2.5)(svelte@3.59.2)(typescript@5.4.5)
+  husky:
+    specifier: ^8.0.0
+    version: 8.0.3
   postcss:
     specifier: ^8.4.38
     version: 8.4.38
@@ -1558,6 +1570,12 @@ packages:
     dependencies:
       '@types/react': 18.3.3
 
+  /@types/react-reconciler@0.28.8:
+    resolution: {integrity: sha512-SN9c4kxXZonFhbX4hJrZy37yw9e7EIxcpHCxQv5JUS18wDE5ovkQKlqQEkufdJCCMfuI9BnjUJvhYeJ9x5Ra7g==}
+    dependencies:
+      '@types/react': 18.3.3
+    dev: false
+
   /@types/react@18.3.3:
     resolution: {integrity: sha512-hti/R0pS0q1/xx+TsI73XIqk26eBsISZ2R0wUijXIngRK9R/e7Xw/cXVxQK7R5JjW+SV4zGcn5hXjudkN/pLIw==}
     dependencies:
@@ -2344,6 +2362,7 @@ packages:
 
   /emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
+    requiresBuild: true
     dev: true
 
   /emoji-regex@9.2.2:
@@ -3276,6 +3295,12 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /husky@8.0.3:
+    resolution: {integrity: sha512-+dQSyqPh4x1hlO1swXBiNb2HzTDN1I2IGLQx1GrBuiqFJfoMrnZWwVmatvSiO+Iz8fBUnf+lekwNo4c2LlXItg==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dev: true
+
   /ignore@5.3.1:
     resolution: {integrity: sha512-5Fytz/IraMjqpwfd34ke28PTVMjZjJG2MPn5t7OE4eUCUNf8BAa7b5WUS9/Qvr6mwOQS7Mk6vdsMno5he+T8Xw==}
     engines: {node: '>= 4'}
@@ -3416,6 +3441,7 @@ packages:
   /is-fullwidth-code-point@3.0.0:
     resolution: {integrity: sha512-zymm5+u+sCsSWyD9qNaejV3DFvhCKclKdizYaJUuHA83RLjb7nSuGnddCHGv0hk+KY7BMAlsWeK4Ueg6EV6XQg==}
     engines: {node: '>=8'}
+    requiresBuild: true
     dev: true
 
   /is-generator-function@1.0.10:
@@ -3544,6 +3570,15 @@ packages:
       set-function-name: 2.0.2
     dev: true
 
+  /its-fine@1.2.5(react@18.3.1):
+    resolution: {integrity: sha512-fXtDA0X0t0eBYAGLVM5YsgJGsJ5jEmqZEPrGbzdf5awjv0xE7nqv3TVnvtUF060Tkes15DbDAKW/I48vsb6SyA==}
+    peerDependencies:
+      react: '>=18.0'
+    dependencies:
+      '@types/react-reconciler': 0.28.8
+      react: 18.3.1
+    dev: false
+
   /jackspeak@3.1.2:
     resolution: {integrity: sha512-kWmLKn2tRtfYMF/BakihVVRzBKOxz4gJMiL2Rj91WnAB5TPZumSH99R/Yf1qE1u4uRimvCSJfm6hnxohXeEXjQ==}
     engines: {node: '>=14'}
@@ -3640,6 +3675,10 @@ packages:
   /known-css-properties@0.24.0:
     resolution: {integrity: sha512-RTSoaUAfLvpR357vWzAz/50Q/BmHfmE6ETSWfutT0AJiw10e6CmcdYRQJlLRd95B53D0Y2aD1jSxD3V3ySF+PA==}
     dev: true
+
+  /konva@9.3.14:
+    resolution: {integrity: sha512-Gmm5lyikGYJyogKQA7Fy6dKkfNh350V6DwfZkid0RVrGYP2cfCsxuMxgF5etKeCv7NjXYpJxKqi1dYkIkX/dcA==}
+    dev: false
 
   /language-subtag-registry@0.3.23:
     resolution: {integrity: sha512-0K65Lea881pHotoGEa5gDlMxt3pctLi2RplBb7Ezh4rRdLEOtgi7n4EwK9lamnUCkKBqaeKRVebTq6BAxSkpXQ==}
@@ -4234,6 +4273,33 @@ packages:
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
     dev: true
+
+  /react-konva@18.2.10(konva@9.3.14)(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-ohcX1BJINL43m4ynjZ24MxFI1syjBdrXhqVxYVDw2rKgr3yuS0x/6m1Y2Z4sl4T/gKhfreBx8KHisd0XC6OT1g==}
+    peerDependencies:
+      konva: ^8.0.1 || ^7.2.5 || ^9.0.0
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
+    dependencies:
+      '@types/react-reconciler': 0.28.8
+      its-fine: 1.2.5(react@18.3.1)
+      konva: 9.3.14
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-reconciler: 0.29.2(react@18.3.1)
+      scheduler: 0.23.2
+    dev: false
+
+  /react-reconciler@0.29.2(react@18.3.1):
+    resolution: {integrity: sha512-zZQqIiYgDCTP/f1N/mAR10nJGrPD2ZR+jDSEsKWJHYC7Cm2wodlwbR3upZRdC3cjIjSlTLNVyO7Iu0Yy7t2AYg==}
+    engines: {node: '>=0.10.0'}
+    peerDependencies:
+      react: ^18.3.1
+    dependencies:
+      loose-envify: 1.4.0
+      react: 18.3.1
+      scheduler: 0.23.2
+    dev: false
 
   /react-remove-scroll-bar@2.3.6(@types/react@18.3.3)(react@18.3.1):
     resolution: {integrity: sha512-DtSYaao4mBmX+HDo5YWYdBWQwYIQQshUV/dVxFxK+KM26Wjwp1gZ6rv6OC3oujI6Bfu6Xyg3TwK533AQutsn/g==}
@@ -4979,6 +5045,16 @@ packages:
       '@types/react': 18.3.3
       react: 18.3.1
       tslib: 2.6.2
+    dev: false
+
+  /use-image@1.1.1(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-n4YO2k8AJG/BcDtxmBx8Aa+47kxY5m335dJiCQA5tTeVU4XdhrhqR6wT0WISRXwdMEOv5CSjqekDZkEMiiWaYQ==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
     dev: false
 
   /use-sidecar@1.1.2(@types/react@18.3.3)(react@18.3.1):

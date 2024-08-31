@@ -1,16 +1,22 @@
 import { MdDelete } from 'react-icons/md'
 
-import { BredlyIcon } from '@/shared/icons/BradleyIcon'
-import { ClosedMrapIcon } from '@/shared/icons/ClosedMrapIcon'
-import { FobIcon } from '@/shared/icons/FobIcon'
-import { HabIcon } from '@/shared/icons/HabIcon'
-import { InfantryIcon } from '@/shared/icons/InfantryIcon'
-import { MortarIcon } from '@/shared/icons/MortarIcon'
-import { MrapIcon } from '@/shared/icons/MrapIcon'
-import { RallyIcon } from '@/shared/icons/RallyIcon'
-import { StrikerIcon } from '@/shared/icons/StrikerIcon'
-import { TruckIcon } from '@/shared/icons/TruckIcon'
-import { TruckSupplyIcon } from '@/shared/icons/TruckSupplyIcon'
+import { bradleyIconString, BredlyIcon } from '@/shared/icons/BradleyIcon'
+import {
+  ClosedMrapIcon,
+  closedMrapIconString,
+} from '@/shared/icons/ClosedMrapIcon'
+import { FobIcon, fobIconString } from '@/shared/icons/FobIcon'
+import { HabIcon, habIconString } from '@/shared/icons/HabIcon'
+import { InfantryIcon, infantryIconString } from '@/shared/icons/InfantryIcon'
+import { MortarIcon, mortarIconString } from '@/shared/icons/MortarIcon'
+import { MrapIcon, mrapIconString } from '@/shared/icons/MrapIcon'
+import { RallyIcon, rallyIconString } from '@/shared/icons/RallyIcon'
+import { StrikerIcon, strikerIconString } from '@/shared/icons/StrikerIcon'
+import { TruckIcon, truckIconString } from '@/shared/icons/TruckIcon'
+import {
+  TruckSupplyIcon,
+  truckSupplyIconString,
+} from '@/shared/icons/TruckSupplyIcon'
 
 interface IconsProps {
   iconType: IconType
@@ -63,4 +69,33 @@ export const Icons = ({ iconType, color }: IconsProps) => {
   }
 
   return currentIcon
+}
+
+export const IconsString = ({ iconType, color }: IconsProps) => {
+  switch (iconType) {
+    case 'infantry':
+      return infantryIconString(color)
+    case 'hab':
+      return habIconString(color)
+    case 'fob':
+      return fobIconString(color)
+    case 'rally':
+      return rallyIconString(color)
+    case 'mortar':
+      return mortarIconString(color)
+    case 'truck':
+      return truckIconString(color)
+    case 'truck-supply':
+      return truckSupplyIconString(color)
+    case 'mrap':
+      return mrapIconString(color)
+    case 'closed-mrap':
+      return closedMrapIconString(color)
+    case 'striker':
+      return strikerIconString(color)
+    case 'bradley':
+      return bradleyIconString(color)
+    default:
+      return infantryIconString(color)
+  }
 }
