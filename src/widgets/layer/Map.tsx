@@ -44,8 +44,8 @@ export const Map = ({ selectedIcon, actionIsDelete }: MapProps) => {
       id: `${icons.length + 1}`,
       x: newIconX,
       y: newIconY,
-      width: 15,
-      height: 15,
+      width: 20,
+      height: 20,
       type: selectedIcon.type,
       color: selectedIcon.color,
     }
@@ -133,8 +133,6 @@ export const Map = ({ selectedIcon, actionIsDelete }: MapProps) => {
             draggable
             onClick={() => handleDelete(el.id)}
             image={createImageFromSVG(el.type, el.color)}
-            width={el.width} // Устанавливаем ширину с учетом масштаба
-            height={el.height} // Устанавливаем высоту с учетом масштаба
           />
         ))}
       </Layer>
