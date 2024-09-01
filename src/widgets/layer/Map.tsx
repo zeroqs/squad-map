@@ -84,27 +84,29 @@ export const Map = ({ selectedIcon, actionIsDelete }: MapProps) => {
 
   const handleDragMove = (e: any) => {
     const stage = e.target
-    const scale = stage.scaleX()
-    const stageWidth = stage.width()
-    const stageHeight = stage.height()
-    const mapWidth = 800 * scale
-    const mapHeight = 800 * scale
+    if (stage === e.target.getStage()) {
+      const scale = stage.scaleX()
+      const stageWidth = stage.width()
+      const stageHeight = stage.height()
+      const mapWidth = 800 * scale
+      const mapHeight = 800 * scale
 
-    let newX = stage.x()
-    if (newX > 0) {
-      newX = 0
-    } else if (newX < stageWidth - mapWidth) {
-      newX = stageWidth - mapWidth
+      let newX = stage.x()
+      if (newX > 0) {
+        newX = 0
+      } else if (newX < stageWidth - mapWidth) {
+        newX = stageWidth - mapWidth
+      }
+
+      let newY = stage.y()
+      if (newY > 0) {
+        newY = 0
+      } else if (newY < stageHeight - mapHeight) {
+        newY = stageHeight - mapHeight
+      }
+
+      stage.position({ x: newX, y: newY })
     }
-
-    let newY = stage.y()
-    if (newY > 0) {
-      newY = 0
-    } else if (newY < stageHeight - mapHeight) {
-      newY = stageHeight - mapHeight
-    }
-
-    stage.position({ x: newX, y: newY })
   }
 
   return (
