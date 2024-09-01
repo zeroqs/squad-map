@@ -71,7 +71,7 @@ export const Icons = ({ iconType, color }: IconsProps) => {
   return currentIcon
 }
 
-export const IconsString = ({ iconType, color }: IconsProps) => {
+export const iconsString = ({ iconType, color }: IconsProps) => {
   switch (iconType) {
     case 'infantry':
       return infantryIconString(color)

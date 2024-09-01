@@ -26,9 +26,9 @@ export const InfantryIcon = ({ fill }: IconProps) => {
 export const infantryIconString = (fill: string) => {
   return `<svg
       xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
-      viewBox="0 0 100 100"
+      width="35"
+      height="35"
+      viewBox="0 0 128 128"
       version="1.1"
     >
       <path
