@@ -33,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
+import { useRouter } from 'next/navigation'
 
 const FormSchema = z.object({
   title: z.string().min(1, { message: 'Please specify title.' }),
@@ -48,6 +49,7 @@ export const CreateLayer = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [isLoading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -57,8 +59,18 @@ export const CreateLayer = () => {
     },
   })
 
-  const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    console.log(data)
+  const onSubmit = async () => {
+    const res = await fetch(`${window.location.origin}/dashboard/api`, {
+      body: JSON.stringify(selectedMap),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    })
+
+    const data = await res.json()
+
+    router.push(`/layer/${data.id}`)
   }
 
   const onClick = async () => {

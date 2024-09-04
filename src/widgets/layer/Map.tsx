@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Image as KonvaImage, Layer, Stage } from 'react-konva'
 import useImage from 'use-image'
 
-import layer from '@/../public/Narva.webp'
 import { IconDto } from '@/app/layer/[slug]/page'
 import { iconsString } from '@/shared/icons/Icons'
 
@@ -24,7 +23,9 @@ interface Icon {
 const FIXED_ICON_SIZE = 25
 
 export const Map = ({ selectedIcon, actionIsDelete }: MapProps) => {
-  const [image] = useImage(layer.src)
+  const [image] = useImage(
+    'https://storage.yandexcloud.net/squadmap/yehorivka/yehorivka.webp',
+  )
   const [icons, setIcons] = useState<Icon[]>([])
   const [stage, setStage] = useState({ scale: 1, x: 0, y: 0 })
 
