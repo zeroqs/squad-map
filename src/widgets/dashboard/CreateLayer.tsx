@@ -5,10 +5,8 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { BsFileEarmarkPlus } from 'react-icons/bs'
-import useSWR from 'swr'
 import { z } from 'zod'
 
-import { fetcher } from '@/shared/api'
 import { Button } from '@/shared/ui/button'
 import {
   Dialog,
@@ -43,11 +41,13 @@ const FormSchema = z.object({
 })
 
 export const CreateLayer = () => {
-  const { data, error, isLoading } = useSWR<AvailableMap[]>(
-    '/dashboard/api',
-    fetcher,
+  const [availableMaps, setAvailableMaps] = useState<AvailableMap[] | null>(
+    null,
   )
   const [selectedMap, setSelectedMap] = useState<AvailableMap | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [isLoading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -57,12 +57,30 @@ export const CreateLayer = () => {
     },
   })
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  const onSubmit = (data: z.infer<typeof FormSchema>) => {
     console.log(data)
   }
 
+  const onClick = async () => {
+    setModalOpen((prev) => !prev)
+    if (!modalOpen) {
+      setLoading(true)
+      try {
+        const data = await fetch(`${window.location.origin}/dashboard/api`)
+        const posts = await data.json()
+        setAvailableMaps(posts)
+        setError(null)
+      } catch (error) {
+        setError((error as Error).message)
+        console.error(error)
+      } finally {
+        setLoading(false)
+      }
+    }
+  }
+
   return (
-    <Dialog>
+    <Dialog open={modalOpen} onOpenChange={onClick}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -108,7 +126,9 @@ export const CreateLayer = () => {
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value)
-                      setSelectedMap(data!.filter((map) => map.id === value)[0])
+                      setSelectedMap(
+                        availableMaps!.filter((map) => map.id === value)[0],
+                      )
                     }}
                     defaultValue={field.value}
                   >
@@ -119,12 +139,18 @@ export const CreateLayer = () => {
                     </FormControl>
                     <SelectContent>
                       {isLoading && (
-                        <SelectItem value="">Loading...</SelectItem>
+                        <div className="text-center items-center justify-center flex h-52">
+                          Loading...
+                        </div>
                       )}
 
-                      {error && <SelectItem value="">Error</SelectItem>}
+                      {error && (
+                        <div className="text-center items-center justify-center flex h-52">
+                          {error}
+                        </div>
+                      )}
 
-                      {data?.map((map) => (
+                      {availableMaps?.map((map) => (
                         <SelectItem key={map.id} value={map.id}>
                           {map.title}
                         </SelectItem>
