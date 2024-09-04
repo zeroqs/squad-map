@@ -1,13 +1,14 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
 import Image from 'next/image'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { BsFileEarmarkPlus } from 'react-icons/bs'
+import useSWR from 'swr'
+import { z } from 'zod'
 
-import BlackCoastImage from '@/../public/BlackCoast.webp'
-import FoolsRoadImage from '@/../public/FoolsRoad.webp'
-import NarvaImage from '@/../public/Narva.webp'
-import YehorivkaImage from '@/../public/Yehorivka.webp'
+import { fetcher } from '@/shared/api'
 import { Button } from '@/shared/ui/button'
 import {
   Dialog,
@@ -18,8 +19,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/shared/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/shared/ui/form'
 import { Input } from '@/shared/ui/input'
-import { Label } from '@/shared/ui/label'
 import {
   Select,
   SelectContent,
@@ -28,22 +36,29 @@ import {
   SelectValue,
 } from '@/shared/ui/select'
 
-export const CreateLayer = () => {
-  const [state, setState] = useState('')
+const FormSchema = z.object({
+  title: z.string().min(1, { message: 'Please specify title.' }),
 
-  const loadSelectedImage = () => {
-    switch (state) {
-      case 'Narva':
-        return NarvaImage
-      case 'FoolsRoad':
-        return FoolsRoadImage
-      case 'Yehorivka':
-        return YehorivkaImage
-      case 'BlackCoast':
-        return BlackCoastImage
-      default:
-        return ''
-    }
+  selectedMap: z.string().min(1, { message: 'Please select layer.' }),
+})
+
+export const CreateLayer = () => {
+  const { data, error, isLoading } = useSWR<AvailableMap[]>(
+    '/dashboard/api',
+    fetcher,
+  )
+  const [selectedMap, setSelectedMap] = useState<AvailableMap | null>(null)
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      title: '',
+      selectedMap: '',
+    },
+  })
+
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    console.log(data)
   }
 
   return (
@@ -61,44 +76,85 @@ export const CreateLayer = () => {
       </DialogTrigger>
 
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create layer</DialogTitle>
-          <DialogDescription>Create a new layer to start</DialogDescription>
-        </DialogHeader>
+        <Form {...form}>
+          <DialogHeader>
+            <DialogTitle>Create layer</DialogTitle>
+            <DialogDescription>Create a new layer to start</DialogDescription>
+          </DialogHeader>
 
-        <div className="grid w-full items-center gap-1.5 mt-2 mb-2">
-          <Label htmlFor="tactic">Tactic title</Label>
-          <Input type="text" id="tactic" placeholder="Tactic title" />
-        </div>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="grid w-full items-center gap-1.5 mt-2 mb-6">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tactic title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Tactic title" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-        <Select onValueChange={(value) => setState(value)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select layer" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Narva">Narva</SelectItem>
-            <SelectItem value="FoolsRoad">Fools road</SelectItem>
-            <SelectItem value="Yehorivka">Yehorivka</SelectItem>
-            <SelectItem value="BlackCoast">BlackCoast</SelectItem>
-          </SelectContent>
-        </Select>
+            <FormField
+              control={form.control}
+              name="selectedMap"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Layer</FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value)
+                      setSelectedMap(data!.filter((map) => map.id === value)[0])
+                    }}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select layer" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {isLoading && (
+                        <SelectItem value="">Loading...</SelectItem>
+                      )}
 
-        <div className="relative overflow-hidden min-h-[350px] flex justify-center items-center  rounded-lg border border-primary/20 h-60">
-          {state.length > 0 ? (
-            <Image
-              className="animate-fade"
-              src={loadSelectedImage()}
-              placeholder="blur"
-              alt="Map picture"
+                      {error && <SelectItem value="">Error</SelectItem>}
+
+                      {data?.map((map) => (
+                        <SelectItem key={map.id} value={map.id}>
+                          {map.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          ) : (
-            <span className="text-sm text-muted-foreground">Preview</span>
-          )}
-        </div>
 
-        <DialogFooter>
-          <Button className="w-full mt-4">Go to creating strategy</Button>
-        </DialogFooter>
+            <div className="relative overflow-hidden min-h-[350px] flex justify-center items-center  rounded-lg border border-primary/20 h-60 mt-6">
+              {selectedMap ? (
+                <Image
+                  className="animate-fade"
+                  src={selectedMap.previewMapUrl}
+                  width={460}
+                  height={350}
+                  alt="Map picture"
+                />
+              ) : (
+                <span className="text-sm text-muted-foreground">Preview</span>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button className="w-full mt-4">Go to creating strategy</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )

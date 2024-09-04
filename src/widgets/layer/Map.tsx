@@ -52,10 +52,9 @@ export const Map = ({ selectedIcon, actionIsDelete }: MapProps) => {
   }
 
   const handleDelete = (iconId: string) => {
-    console.log(icons.filter((el) => el.id !== iconId))
-    if (actionIsDelete) {
-      setIcons((prevIcons) => prevIcons.filter((el) => el.id !== iconId))
-    }
+    if (!actionIsDelete) return
+
+    setIcons((prevIcons) => prevIcons.filter((el) => el.id !== iconId))
   }
 
   const handleWheel = (e: any) => {
@@ -96,6 +95,7 @@ export const Map = ({ selectedIcon, actionIsDelete }: MapProps) => {
     const mapHeight = 800 * scale
 
     let newX = stage.x()
+
     if (newX > 0) {
       newX = 0
     } else if (newX < stageWidth - mapWidth) {
@@ -103,6 +103,7 @@ export const Map = ({ selectedIcon, actionIsDelete }: MapProps) => {
     }
 
     let newY = stage.y()
+
     if (newY > 0) {
       newY = 0
     } else if (newY < stageHeight - mapHeight) {

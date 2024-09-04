@@ -7,11 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Map {
-  id        Int      @id @default(autoincrement())
+model UserMap {
+  id        String   @id  @default(uuid())
+  
   userId    String
   createdAt DateTime @default(now())
-
   title     String
+
   mapUrl    String
+  previewMapUrl    String
+
+  icons     Json?
+}
+
+model Map {
+  id        String   @id  @default(uuid())
+  title     String
+
+  mapUrl    String
+  previewMapUrl    String
 }
