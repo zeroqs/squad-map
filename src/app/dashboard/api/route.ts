@@ -1,6 +1,5 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { unstable_cache } from 'next/cache'
-import { redirect } from 'next/navigation'
 
 import { prisma } from '@/shared/api'
 
@@ -32,7 +31,6 @@ export async function POST(req: Request) {
       userId: user.id,
     },
   })
-
 
   return Response.json(createdMap)
 }

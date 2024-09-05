@@ -8,6 +8,7 @@ import { iconsString } from '@/shared/icons/Icons'
 interface MapProps {
   selectedIcon: IconDto
   actionIsDelete: boolean
+  mapSrc: string
 }
 
 interface Icon {
@@ -22,10 +23,8 @@ interface Icon {
 
 const FIXED_ICON_SIZE = 25
 
-export const Map = ({ selectedIcon, actionIsDelete }: MapProps) => {
-  const [image] = useImage(
-    'https://storage.yandexcloud.net/squadmap/yehorivka/yehorivka.webp',
-  )
+export const Map = ({ selectedIcon, actionIsDelete, mapSrc }: MapProps) => {
+  const [image] = useImage(mapSrc)
   const [icons, setIcons] = useState<Icon[]>([])
   const [stage, setStage] = useState({ scale: 1, x: 0, y: 0 })
 

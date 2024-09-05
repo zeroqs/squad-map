@@ -2,7 +2,6 @@ import { UserButton } from '@clerk/nextjs'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
-import { Button } from '@/shared/ui/button'
 import { Header } from '@/shared/ui/Header'
 
 export const metadata: Metadata = {
@@ -23,7 +22,6 @@ export default function LayerLayout({
           <Link href="/dashboard"> / Dashboard</Link>
         </Header.LeftSide>
         <Header.RightSide>
-          <Button>Save</Button>
           <UserButton />
         </Header.RightSide>
       </Header>
