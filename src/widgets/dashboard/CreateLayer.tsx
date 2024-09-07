@@ -2,11 +2,14 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { BsFileEarmarkPlus } from 'react-icons/bs'
 import { z } from 'zod'
 
+import { useToast } from '@/hooks/use-toast'
+import { useFetch } from '@/shared/hooks/useFetch'
 import { Button } from '@/shared/ui/button'
 import {
   Dialog,
@@ -33,7 +36,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/ui/select'
-import { useRouter } from 'next/navigation'
 
 const FormSchema = z.object({
   title: z.string().min(1, { message: 'Please specify title.' }),
@@ -42,13 +44,10 @@ const FormSchema = z.object({
 })
 
 export const CreateLayer = () => {
-  const [availableMaps, setAvailableMaps] = useState<AvailableMap[] | null>(
-    null,
-  )
   const [selectedMap, setSelectedMap] = useState<AvailableMap | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
-  const [isLoading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+
+  const { toast } = useToast()
   const router = useRouter()
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -58,41 +57,50 @@ export const CreateLayer = () => {
       selectedMap: '',
     },
   })
+  const availableMaps = useFetch<AvailableMap[] | null>({
+    input: '/dashboard/api',
+    initialValue: null,
+  })
 
-  const onSubmit = async () => {
-    const res = await fetch(`${window.location.origin}/dashboard/api`, {
-      body: JSON.stringify(selectedMap),
+  const createMap = useFetch<AvailableMap | null>({
+    input: '/dashboard/api',
+    initialValue: null,
+    config: {
+      body: JSON.stringify({
+        ...selectedMap,
+        title: form.getValues('title'),
+      }),
       headers: {
         'Content-Type': 'application/json',
       },
       method: 'POST',
-    })
+    },
+  })
 
-    const data = await res.json()
+  const handlerOnSubmit = async () => {
+    const dataResponse = await createMap.handleFetch()
 
-    router.push(`/layer/${data.id}`)
+    if (!dataResponse) {
+      toast({
+        title: 'Error',
+        description: 'Failed to create layer.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    router.push(`/layer/${dataResponse.id}`)
   }
 
-  const onClick = async () => {
+  const handlerFetchOnModalOpen = async () => {
     setModalOpen((prev) => !prev)
     if (!modalOpen) {
-      setLoading(true)
-      try {
-        const data = await fetch(`${window.location.origin}/dashboard/api`)
-        const posts = await data.json()
-        setAvailableMaps(posts)
-        setError(null)
-      } catch (error) {
-        setError((error as Error).message)
-        console.error(error)
-      } finally {
-        setLoading(false)
-      }
+      availableMaps.handleFetch()
     }
   }
 
   return (
-    <Dialog open={modalOpen} onOpenChange={onClick}>
+    <Dialog open={modalOpen} onOpenChange={handlerFetchOnModalOpen}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -112,7 +120,7 @@ export const CreateLayer = () => {
             <DialogDescription>Create a new layer to start</DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form onSubmit={form.handleSubmit(handlerOnSubmit)}>
             <div className="grid w-full items-center gap-1.5 mt-2 mb-6">
               <FormField
                 control={form.control}
@@ -139,7 +147,9 @@ export const CreateLayer = () => {
                     onValueChange={(value) => {
                       field.onChange(value)
                       setSelectedMap(
-                        availableMaps!.filter((map) => map.id === value)[0],
+                        availableMaps.data!.filter(
+                          (map) => map.id === value,
+                        )[0],
                       )
                     }}
                     defaultValue={field.value}
@@ -150,19 +160,19 @@ export const CreateLayer = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {isLoading && (
+                      {availableMaps.isLoading && (
                         <div className="text-center items-center justify-center flex h-52">
                           Loading...
                         </div>
                       )}
 
-                      {error && (
+                      {availableMaps.error && (
                         <div className="text-center items-center justify-center flex h-52">
-                          {error}
+                          {availableMaps.error}
                         </div>
                       )}
 
-                      {availableMaps?.map((map) => (
+                      {availableMaps.data?.map((map) => (
                         <SelectItem key={map.id} value={map.id}>
                           {map.title}
                         </SelectItem>
@@ -189,7 +199,9 @@ export const CreateLayer = () => {
             </div>
 
             <DialogFooter>
-              <Button className="w-full mt-4">Go to creating strategy</Button>
+              <Button loading={createMap.isLoading} className="w-full mt-4">
+                Go to creating strategy
+              </Button>
             </DialogFooter>
           </form>
         </Form>

@@ -19,7 +19,7 @@ const config = {
     },
     extend: {
       gridTemplateColumns: {
-        layouts: 'repeat(4, minmax(0, 1fr))',
+        layouts: 'repeat(auto-fit, minmax(250px, 1fr))',
       },
       colors: {
         border: 'hsl(var(--border))',

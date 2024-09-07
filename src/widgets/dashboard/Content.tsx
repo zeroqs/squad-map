@@ -2,25 +2,25 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
+import { useFetch } from '@/shared/hooks/useFetch'
 import { Separator } from '@/shared/ui/separator'
 import { CreateLayer } from '@/widgets/dashboard/CreateLayer'
 
 export const Content = () => {
-  const [maps, setMaps] = useState<AvailableMap[]>([])
+  const { data, isLoading, error, handleFetch } = useFetch<AvailableMap[]>({
+    input: '/api',
+    initialValue: [],
+    config: { cache: 'reload' },
+  })
 
   useEffect(() => {
-    const fetchMaps = async () => {
-      const res = await fetch('http://localhost:3000/api', {
-        cache: 'reload',
-      })
-      const data = await res.json()
-      setMaps(data)
-    }
-
-    fetchMaps()
+    handleFetch()
   }, [])
+
+  if (isLoading) return <div>Loading...</div>
+  if (error) return <div>{error}</div>
 
   return (
     <div>
@@ -31,19 +31,25 @@ export const Content = () => {
       <div className="animate-fade animate-delay-300 grid grid-cols-layouts gap-4 mt-10">
         <CreateLayer />
 
-        {maps.map((map) => (
+        {data.map((map) => (
           <Link
             key={map.id}
             href={`/layer/${map.id}`}
-            className="relative border border-primary/20 h-[190px] items-center justify-center flex flex-col hover:cursor-pointer gap-4 "
+            className="relative group border border-primary/20 h-[190px] items-center justify-center flex flex-col hover:cursor-pointer gap-4"
           >
             <Image
-              className="absolute w-full h-full"
+              className="absolute w-full h-full object-cover"
               src={map.previewMapUrl}
               alt={map.title}
               width={200}
               height={190}
             />
+
+            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <span className="text-white text-lg font-bold">{map.title}</span>
+            </div>
           </Link>
         ))}
       </div>
