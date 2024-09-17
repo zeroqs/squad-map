@@ -1,6 +1,6 @@
 import { KonvaEventObject } from 'konva/lib/Node'
 import { Stage as KonvaStage } from 'konva/lib/Stage'
-import { SetStateAction, useEffect, useRef, useState } from 'react'
+import { SetStateAction, useRef, useState } from 'react'
 import { Image as KonvaImage, Layer, Stage, Text } from 'react-konva'
 import useImage from 'use-image'
 

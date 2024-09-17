@@ -19,4 +19,10 @@ module.exports = configure({
     presets.typescript(),
     presets.react(),
   ],
+
+  extend : {
+    rules : {
+      'no-any' : 'off',
+    },
+  }
 })
