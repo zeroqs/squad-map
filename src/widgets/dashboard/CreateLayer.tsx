@@ -172,6 +172,12 @@ export const CreateLayer = () => {
                         </div>
                       )}
 
+                      {availableMaps.data?.length === 0 && (
+                        <div className="text-center items-center justify-center flex h-52">
+                          No data
+                        </div>
+                      )}
+
                       {availableMaps.data?.map((map) => (
                         <SelectItem key={map.id} value={map.id}>
                           {map.title}

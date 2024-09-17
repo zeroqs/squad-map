@@ -9,6 +9,9 @@ const getUserMaps = unstable_cache(
       where: {
         userId: id,
       },
+      orderBy: {
+        updatedAt: 'desc',
+      },
     })
   },
   ['userMaps'],

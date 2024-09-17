@@ -1,13 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { MdDelete } from 'react-icons/md'
 
 import { IconPicker } from '@/app/layer/components/ControlsPanel/IconPicker/IconPicker'
+import { useFetch } from '@/shared/hooks/useFetch'
 import { Icons } from '@/shared/icons/Icons'
 import { Button } from '@/shared/ui/button'
 import { GradientPicker } from '@/shared/ui/color-picker'
+import { Label } from '@/shared/ui/label'
 import { PageLoader } from '@/shared/ui/PageLoader'
+import { Textarea } from '@/shared/ui/textarea'
 import { Toggle } from '@/shared/ui/toggle'
 import { Map } from '@/widgets/layer/Map'
 
@@ -25,9 +28,33 @@ export default function Layer({ params }: { params: { slug: string } }) {
   const [selectedIcon, setSelectedIcon] = useState<IconDto>(defaultState)
   const [selectedColor, setSelectedColor] = useState('#fff')
   const [actionIsDelete, setActionDelete] = useState(false)
-  const [map, setMap] = useState<AvailableMap | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const notesRef = useRef<HTMLTextAreaElement | null>(null)
+
+  const map = useFetch<AvailableMap | null>({
+    input: `/layers/${params.slug}`,
+    initialValue: null,
+    config: {
+      method: 'GET',
+      cache: 'reload',
+    },
+  })
+
+  const [data, setData] = useState<MapIcons>({
+    icons: [],
+    text: [],
+  })
+
+  const mapSave = useFetch<AvailableMap | null>({
+    input: `/layers/${params.slug}`,
+    initialValue: null,
+    config: {
+      method: 'POST',
+      body: JSON.stringify({
+        id: params.slug,
+        data,
+      }),
+    },
+  })
 
   const onChangeIcon = (value: IconType) => {
     setSelectedIcon({
@@ -49,45 +76,50 @@ export default function Layer({ params }: { params: { slug: string } }) {
     setActionDelete(!actionIsDelete)
   }
 
-  const handleSave = <T,>(data: T) => {
-    try {
-      const res = fetch(`${window.location.origin}/layers/${params.slug}`)
-    } catch (error) {
-      console.error(error)
-    } finally {
-      console.log('1')
-    }
+  const handleSave = () => {
+    mapSave.handleFetch()
   }
 
   useEffect(() => {
-    const fetchMap = async () => {
-      try {
-        setLoading(true)
-        const res = await fetch(
-          `${window.location.origin}/layers/${params.slug}`,
-        )
-        const data = await res.json()
-        setMap(data)
-        setError(null)
-      } catch (error) {
-        console.error(error)
-        setError((error as Error).message)
-      } finally {
-        setLoading(false)
+    map.handleFetch().then((data) => {
+      if (data?.mapData) {
+        setData(data.mapData)
+      }
+    })
+  }, [params.slug])
+
+  useEffect(() => {
+    const handleSaveShortcut = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+        event.preventDefault()
+        mapSave.handleFetch()
       }
     }
 
-    fetchMap()
-  }, [params.slug])
+    window.addEventListener('keydown', handleSaveShortcut)
 
-  if (loading) return <PageLoader />
-  if (error) return <div>{error}</div>
+    return () => {
+      window.removeEventListener('keydown', handleSaveShortcut)
+    }
+  }, [])
+
+  if (map.isLoading) return <PageLoader />
+  if (map.error) return <div>{map.error}</div>
 
   return (
     <>
+      <div className="animate-fade animate-delay-200 pb-5">
+        <span>Layer:</span>
+        <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight pb-5 inline pl-2">
+          {map.data?.title}
+        </h3>
+      </div>
+
       <div className="flex justify-between">
         <Map
-          mapSrc={map?.mapUrl || ''}
+          data={data}
+          updateIcons={setData}
+          mapSrc={map.data?.mapUrl || ''}
           selectedIcon={selectedIcon}
           actionIsDelete={actionIsDelete}
         />
@@ -121,12 +153,24 @@ export default function Layer({ params }: { params: { slug: string } }) {
             </div>
 
             <div className="flex-[1_1_auto] text-right">
-              <Button>Save</Button>
+              <Button onClick={handleSave} loading={mapSave.isLoading}>
+                Save
+              </Button>
             </div>
           </div>
 
           <div className="flex justify-start">
             <IconPicker icon={selectedIcon} onChange={onChangeIcon} />
+          </div>
+
+          <div className="grid w-full gap-1.5">
+            <Label htmlFor="notes">Your notes</Label>
+            <Textarea
+              ref={notesRef}
+              defaultValue={map.data?.notes || ''}
+              placeholder="Type your notes for this layer here."
+              id="notes"
+            />
           </div>
         </div>
       </div>

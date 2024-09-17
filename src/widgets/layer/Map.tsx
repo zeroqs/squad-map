@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
-import { Image as KonvaImage, Layer, Stage } from 'react-konva'
+import { KonvaEventObject } from 'konva/lib/Node'
+import { Stage as KonvaStage } from 'konva/lib/Stage'
+import { SetStateAction, useEffect, useRef, useState } from 'react'
+import { Image as KonvaImage, Layer, Stage, Text } from 'react-konva'
 import useImage from 'use-image'
 
 import { IconDto } from '@/app/layer/[slug]/page'
@@ -9,63 +11,79 @@ interface MapProps {
   selectedIcon: IconDto
   actionIsDelete: boolean
   mapSrc: string
-}
-
-interface Icon {
-  id: string
-  x: number
-  y: number
-  width: number
-  height: number
-  type: IconType
-  color: string
+  updateIcons: (value: SetStateAction<MapIcons>) => void
+  data: MapIcons
 }
 
 const FIXED_ICON_SIZE = 25
 
-export const Map = ({ selectedIcon, actionIsDelete, mapSrc }: MapProps) => {
+export const Map = ({
+  selectedIcon,
+  actionIsDelete,
+  mapSrc,
+  updateIcons,
+  data,
+}: MapProps) => {
   const [image] = useImage(mapSrc)
-  const [icons, setIcons] = useState<Icon[]>([])
   const [stage, setStage] = useState({ scale: 1, x: 0, y: 0 })
+  const mapStageRef = useRef<KonvaStage | null>(null)
 
-  const handleClick = (e: any) => {
-    if (actionIsDelete) return
+  const updateIconsData = (type: 'text' | 'icons', updatedItems: any) => {
+    updateIcons((prevIcons) => ({
+      ...prevIcons,
+      [type]: updatedItems,
+    }))
+  }
 
-    const stage = e.target.getStage()
-    const pointerPosition = stage.getPointerPosition()
+  const handleClick = (event: KonvaEventObject<MouseEvent>) => {
+    if (actionIsDelete || (event.target.x() && event.target.y())) return
+
+    const stage = event.target.getStage()!
+    const pointerPosition = stage.getPointerPosition()!
     const scale = stage.scaleX()
-
     const newIconX = (pointerPosition.x - stage.x() - 15) / scale
     const newIconY = (pointerPosition.y - stage.y() - 15) / scale
 
-    const newIcon = {
-      id: `${icons.length + 1}`,
-      x: newIconX,
-      y: newIconY,
-      width: FIXED_ICON_SIZE,
-      height: FIXED_ICON_SIZE,
-      type: selectedIcon.type,
-      color: selectedIcon.color,
+    if (selectedIcon.type === 'text') {
+      const newText = {
+        id: `${data.text.length + 1}`,
+        x: newIconX,
+        y: newIconY,
+        text: 'Text',
+        color: selectedIcon.color,
+      }
+      updateIconsData('text', [...data.text, newText])
+    } else {
+      const newIcon = {
+        id: `${data.icons.length + 1}`,
+        x: newIconX,
+        y: newIconY,
+        width: FIXED_ICON_SIZE,
+        height: FIXED_ICON_SIZE,
+        type: selectedIcon.type,
+        color: selectedIcon.color,
+      }
+      updateIconsData('icons', [...data.icons, newIcon])
     }
-
-    setIcons([...icons, newIcon])
   }
 
-  const handleDelete = (iconId: string) => {
+  const handleDelete = (id: string, type: 'text' | 'icons') => {
     if (!actionIsDelete) return
-
-    setIcons((prevIcons) => prevIcons.filter((el) => el.id !== iconId))
+    updateIconsData(
+      type,
+      data[type].filter((el: any) => el.id !== id),
+    )
   }
 
-  const handleWheel = (e: any) => {
+  const handleWheel = (e: KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault()
 
     const scaleBy = 1.05
-    const stage = e.target.getStage()
+    const stage = e.target.getStage()!
     const oldScale = stage.scaleX()
     const mousePointTo = {
-      x: stage.getPointerPosition().x / oldScale - stage.x() / oldScale,
-      y: stage.getPointerPosition().y / oldScale - stage.y() / oldScale,
+      x: stage.getPointerPosition()!.x / oldScale - stage.x() / oldScale,
+      y: stage.getPointerPosition()!.y / oldScale - stage.y() / oldScale,
     }
 
     let newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy
@@ -75,8 +93,8 @@ export const Map = ({ selectedIcon, actionIsDelete, mapSrc }: MapProps) => {
     }
 
     const newPos = {
-      x: stage.getPointerPosition().x - mousePointTo.x * newScale,
-      y: stage.getPointerPosition().y - mousePointTo.y * newScale,
+      x: stage.getPointerPosition()!.x - mousePointTo.x * newScale,
+      y: stage.getPointerPosition()!.y - mousePointTo.y * newScale,
     }
 
     setStage({
@@ -86,8 +104,8 @@ export const Map = ({ selectedIcon, actionIsDelete, mapSrc }: MapProps) => {
     })
   }
 
-  const handleDragMove = (e: any) => {
-    const stage = e.target.getStage()
+  const handleDragMove = (e: KonvaEventObject<DragEvent>) => {
+    const stage = e.target.getStage()!
     const scale = stage.scaleX()
     const stageWidth = stage.width()
     const stageHeight = stage.height()
@@ -113,8 +131,76 @@ export const Map = ({ selectedIcon, actionIsDelete, mapSrc }: MapProps) => {
     stage.position({ x: newX, y: newY })
   }
 
+  const handleMouseUp = (
+    event: KonvaEventObject<MouseEvent>,
+    id: string,
+    type: 'text' | 'icons',
+  ) => {
+    const updatedItems = data[type].map((el: any) =>
+      el.id === id ? { ...el, x: event.target.x(), y: event.target.y() } : el,
+    )
+    updateIconsData(type, updatedItems)
+  }
+
+  const handleTextEdit = (event: KonvaEventObject<MouseEvent>, id: string) => {
+    // https://konvajs.org/docs/sandbox/Editable_Text.html
+    const textPosition = event.target.getAbsolutePosition()
+    const stageBox = mapStageRef.current!.container().getBoundingClientRect()
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const initialText = event.target.textArr[0].text
+
+    const areaPosition = {
+      x: stageBox.left + textPosition.x,
+      y: stageBox.top + textPosition.y,
+    }
+
+    const textarea = document.createElement('textarea')
+    document.body.append(textarea)
+
+    textarea.value = initialText
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    textarea.value = event.target.textArr[0].text
+    textarea.style.position = 'absolute'
+    textarea.style.top = areaPosition.y + 'px'
+    textarea.style.left = areaPosition.x + 'px'
+    textarea.style.width = event.target.width() as unknown as string
+    console.log(event.target)
+
+    textarea.focus()
+
+    textarea.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        event.target.textArr[0].text = textarea.value
+        event.target.attrs.text = textarea.value
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        event.target._partialText = textarea.value
+
+        updateIconsData(
+          'text',
+          data.text.map((el) =>
+            el.id === id ? { ...el, text: textarea.value } : el,
+          ),
+        )
+
+        textarea.remove()
+        textarea.removeEventListener('keydown', () => {})
+        window.requestAnimationFrame(() => event.target.getLayer()!.draw())
+      }
+      if (e.key === 'Escape') {
+        textarea.remove()
+        textarea.removeEventListener('keydown', () => {})
+      }
+    })
+  }
+
   return (
     <Stage
+      ref={mapStageRef}
       onWheel={handleWheel}
       scaleX={stage.scale}
       scaleY={stage.scale}
@@ -129,16 +215,32 @@ export const Map = ({ selectedIcon, actionIsDelete, mapSrc }: MapProps) => {
       <Layer>
         <KonvaImage image={image} width={800} height={800} />
 
-        {icons.map((el) => (
+        {data.icons.map((el) => (
           <KonvaImage
             key={el.id}
             x={el.x}
             y={el.y}
             draggable
-            onClick={() => handleDelete(el.id)}
+            onDragEnd={(e) => handleMouseUp(e, el.id, 'icons')}
+            onClick={() => handleDelete(el.id, 'icons')}
             image={createImageFromSVG(el.type, el.color)}
             width={el.width / stage.scale}
             height={el.height / stage.scale}
+          />
+        ))}
+
+        {data.text.map((el) => (
+          <Text
+            key={el.id}
+            x={el.x}
+            y={el.y}
+            text={el.text}
+            draggable
+            fill={el.color}
+            fontSize={20 / stage.scale}
+            onDblClick={(event) => handleTextEdit(event, el.id)}
+            onClick={() => handleDelete(el.id, 'text')}
+            onDragEnd={(e) => handleMouseUp(e, el.id, 'text')}
           />
         ))}
       </Layer>

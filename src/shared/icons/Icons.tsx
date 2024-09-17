@@ -1,3 +1,4 @@
+import { IoText } from 'react-icons/io5'
 import { MdDelete } from 'react-icons/md'
 
 import { bradleyIconString, BredlyIcon } from '@/shared/icons/BradleyIcon'
@@ -62,6 +63,9 @@ export const Icons = ({ iconType, color }: IconsProps) => {
       break
     case 'bradley':
       currentIcon = <BredlyIcon fill={color} />
+      break
+    case 'text':
+      currentIcon = <IoText size={20} fill={color} />
       break
     default:
       currentIcon = <InfantryIcon fill={color} />

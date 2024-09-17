@@ -12,12 +12,18 @@ model UserMap {
   
   userId    String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   title     String
 
   mapUrl    String
   previewMapUrl    String
 
-  icons     Json?
+  mapData   Json?
+  // mapData : {
+  //  icons : Json?
+  //  texts : Json?
+  // }
+  notes   String?
 }
 
 model Map {

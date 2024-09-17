@@ -18,7 +18,7 @@ export async function GET(
   request: Request,
   { params }: { params: { slug: string } },
 ) {
-  const slug = params.slug // 'a', 'b', or 'c'
+  const slug = params.slug
   const map = await getMap(slug)
 
   if (!map) {
@@ -26,4 +26,20 @@ export async function GET(
   }
 
   return Response.json(map)
+}
+
+export async function POST(req: Request) {
+  const { id, data, notes } = await req.json()
+
+  const updatedMap = await prisma.userMap.update({
+    where: {
+      id,
+    },
+    data: {
+      mapData: data,
+      notes,
+    },
+  })
+
+  return Response.json(updatedMap)
 }

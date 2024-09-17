@@ -15,3 +15,4 @@ type IconType =
   | 'closed-mrap'
   | 'truck'
   | 'truck-supply'
+  | 'text'
