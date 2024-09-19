@@ -1,22 +1,17 @@
 import { currentUser } from '@clerk/nextjs/server'
-import { unstable_cache } from 'next/cache'
 
 import { prisma } from '@/shared/api'
 
-const getUserMaps = unstable_cache(
-  async (id: string) => {
-    return await prisma.userMap.findMany({
-      where: {
-        userId: id,
-      },
-      orderBy: {
-        updatedAt: 'desc',
-      },
-    })
-  },
-  ['userMaps'],
-  { revalidate: 3600, tags: ['userMaps'] },
-)
+const getUserMaps = async (id: string) => {
+  return await prisma.userMap.findMany({
+    where: {
+      userId: id,
+    },
+    orderBy: {
+      updatedAt: 'desc',
+    },
+  })
+}
 
 export async function GET() {
   const user = await currentUser()
