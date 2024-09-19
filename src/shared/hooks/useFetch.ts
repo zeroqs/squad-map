@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const API_URL = 'http://localhost:3000'
+const API_URL = 'https://squad-map.vercel.app'
 
 interface UseFetch<T> {
   input: string | URL | globalThis.Request
