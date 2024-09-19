@@ -12,7 +12,7 @@ export const Content = () => {
   const { data, isLoading, error, handleFetch } = useFetch<AvailableMap[]>({
     input: '/api',
     initialValue: [],
-    config: { cache: 'reload' },
+    config: { cache: 'no-cache' },
   })
 
   useEffect(() => {
