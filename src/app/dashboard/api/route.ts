@@ -1,15 +1,10 @@
 import { currentUser } from '@clerk/nextjs/server'
-import { unstable_cache } from 'next/cache'
 
 import { prisma } from '@/shared/api'
 
-const getAvailableMapList = unstable_cache(
-  async () => {
-    return await prisma.map.findMany()
-  },
-  ['availableMaps'],
-  { revalidate: 3600, tags: ['availableMaps'] },
-)
+const getAvailableMapList = async () => {
+  return await prisma.map.findMany()
+}
 
 export async function GET() {
   const allMaps = await getAvailableMapList()

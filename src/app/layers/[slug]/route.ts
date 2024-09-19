@@ -1,18 +1,12 @@
-import { unstable_cache } from 'next/cache'
-
 import { prisma } from '@/shared/api'
 
-const getMap = unstable_cache(
-  async (id: string) => {
-    return await prisma.userMap.findUnique({
-      where: {
-        id,
-      },
-    })
-  },
-  ['map'],
-  { revalidate: 3600, tags: ['map'] },
-)
+const getMap = async (id: string) => {
+  return await prisma.userMap.findUnique({
+    where: {
+      id,
+    },
+  })
+}
 
 export async function GET(
   request: Request,
