@@ -41,8 +41,8 @@ export const Map = ({
     const stage = event.target.getStage()!
     const pointerPosition = stage.getPointerPosition()!
     const scale = stage.scaleX()
-    const newIconX = (pointerPosition.x - stage.x() - 15) / scale
-    const newIconY = (pointerPosition.y - stage.y() - 15) / scale
+    const newIconX = (pointerPosition.x - stage.x()) / scale
+    const newIconY = (pointerPosition.y - stage.y() - 5) / scale
 
     if (selectedIcon.type === 'text') {
       const newText = {
