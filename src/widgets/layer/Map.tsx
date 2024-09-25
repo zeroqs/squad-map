@@ -166,7 +166,6 @@ export const Map = ({
     textarea.style.top = areaPosition.y + 'px'
     textarea.style.left = areaPosition.x + 'px'
     textarea.style.width = event.target.width() as unknown as string
-    console.log(event.target)
 
     textarea.focus()
 
@@ -179,11 +178,13 @@ export const Map = ({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         event.target._partialText = textarea.value
+        const width = event.target.width()
+        const height = event.target.height()
 
         updateIconsData(
           'text',
           data.text.map((el) =>
-            el.id === id ? { ...el, text: textarea.value } : el,
+            el.id === id ? { ...el, text: textarea.value, width, height } : el,
           ),
         )
 
@@ -197,7 +198,7 @@ export const Map = ({
       }
     })
   }
-
+  console.log(data.text)
   return (
     <Stage
       ref={mapStageRef}
@@ -243,6 +244,8 @@ export const Map = ({
             onDblClick={(event) => handleTextEdit(event, el.id)}
             onClick={() => handleDelete(el.id, 'text')}
             onDragEnd={(e) => handleMouseUp(e, el.id, 'text')}
+            offsetX={el.width / stage.scale / 2}
+            offsetY={el.height / stage.scale / 2}
           />
         ))}
       </Layer>

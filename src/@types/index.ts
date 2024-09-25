@@ -16,6 +16,9 @@ interface Texts {
 
   text: string
   color: string
+
+  width: number
+  height: number
 }
 
 interface Icon {
