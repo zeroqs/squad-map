@@ -1,7 +1,5 @@
 import { useState } from 'react'
 
-const API_URL = 'https://squad-map.vercel.app'
-
 interface UseFetch<T> {
   input: string | URL | globalThis.Request
   initialValue: T
@@ -16,7 +14,7 @@ export const useFetch = <T>({ input, initialValue, config }: UseFetch<T>) => {
   const handleFetch = async (): Promise<T | undefined> => {
     try {
       setLoading(true)
-      const res = await fetch(`${API_URL}${input}`, config)
+      const res = await fetch(input, config)
       const data = await res.json()
       setData(data)
       setError(null)

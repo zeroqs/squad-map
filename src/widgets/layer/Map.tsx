@@ -226,6 +226,8 @@ export const Map = ({
             image={createImageFromSVG(el.type, el.color)}
             width={el.width / stage.scale}
             height={el.height / stage.scale}
+            offsetX={el.width / stage.scale / 2}
+            offsetY={el.height / stage.scale / 2}
           />
         ))}
 
