@@ -19,10 +19,18 @@ model UserMap {
   previewMapUrl    String
 
   mapData   Json?
-  // mapData : {
-  //  icons : Json?
-  //  texts : Json?
-  // }
+  // mapData : [
+  // {  
+  //  title: "Layer 1",
+  //  icons : [],
+  //  text : []
+  // },
+  // {  
+  //  title: "Layer 2",
+  //  icons : [],
+  //  text : []
+  // },
+  // ]
   notes   String?
 }
 

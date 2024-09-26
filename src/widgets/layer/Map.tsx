@@ -198,7 +198,7 @@ export const Map = ({
       }
     })
   }
-  console.log(data.text)
+
   return (
     <Stage
       ref={mapStageRef}
