@@ -1,6 +1,6 @@
 import { KonvaEventObject } from 'konva/lib/Node'
 import { Stage as KonvaStage } from 'konva/lib/Stage'
-import { SetStateAction, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Image as KonvaImage, Layer, Stage, Text } from 'react-konva'
 import useImage from 'use-image'
 
@@ -11,8 +11,9 @@ interface MapProps {
   selectedIcon: IconDto
   actionIsDelete: boolean
   mapSrc: string
-  updateIcons: (value: SetStateAction<MapIcons>) => void
+  updateIcons: (payload: Pick<MapIcons, 'icons' | 'text'>) => void
   data: MapIcons
+  activeLayer: string
 }
 
 const FIXED_ICON_SIZE = 25
@@ -28,11 +29,11 @@ export const Map = ({
   const [stage, setStage] = useState({ scale: 1, x: 0, y: 0 })
   const mapStageRef = useRef<KonvaStage | null>(null)
 
-  const updateIconsData = (type: 'text' | 'icons', updatedItems: any) => {
-    updateIcons((prevIcons) => ({
-      ...prevIcons,
-      [type]: updatedItems,
-    }))
+  const updateIconsData = (
+    type: 'text' | 'icons',
+    updatedItems: Icon[] | Texts[],
+  ) => {
+    updateIcons({ [type]: updatedItems } as Pick<MapIcons, 'icons' | 'text'>)
   }
 
   const handleClick = (event: KonvaEventObject<MouseEvent>) => {
@@ -51,6 +52,8 @@ export const Map = ({
         y: newIconY,
         text: 'Text',
         color: selectedIcon.color,
+        width: 30,
+        height: 30,
       }
       updateIconsData('text', [...data.text, newText])
     } else {
@@ -69,9 +72,10 @@ export const Map = ({
 
   const handleDelete = (id: string, type: 'text' | 'icons') => {
     if (!actionIsDelete) return
+
     updateIconsData(
       type,
-      data[type].filter((el: any) => el.id !== id),
+      (data[type] as Icon[]).filter((el) => el.id !== id),
     )
   }
 
@@ -136,6 +140,7 @@ export const Map = ({
     id: string,
     type: 'text' | 'icons',
   ) => {
+    console.log('@@@', event.target)
     const updatedItems = data[type].map((el: any) =>
       el.id === id ? { ...el, x: event.target.x(), y: event.target.y() } : el,
     )
@@ -244,8 +249,6 @@ export const Map = ({
             onDblClick={(event) => handleTextEdit(event, el.id)}
             onClick={() => handleDelete(el.id, 'text')}
             onDragEnd={(e) => handleMouseUp(e, el.id, 'text')}
-            offsetX={el.width / stage.scale / 2}
-            offsetY={el.height / stage.scale / 2}
           />
         ))}
       </Layer>

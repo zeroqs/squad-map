@@ -5,7 +5,7 @@ interface AvailableMap {
   mapUrl: string
   previewMapUrl: string
 
-  mapData: MapIcons | null
+  mapData: MapIcons[] | null
   notes: string | null
 }
 
@@ -32,6 +32,7 @@ interface Icon {
 }
 
 interface MapIcons {
+  title: string
   icons: Icon[]
   text: Texts[]
 }
