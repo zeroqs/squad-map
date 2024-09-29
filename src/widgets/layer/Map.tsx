@@ -52,8 +52,8 @@ export const Map = ({
         y: newIconY,
         text: 'Text',
         color: selectedIcon.color,
-        width: 30,
-        height: 30,
+        width: 50,
+        height: 50,
       }
       updateIconsData('text', [...data.text, newText])
     } else {
@@ -204,6 +204,7 @@ export const Map = ({
     })
   }
 
+  data.text.map((el) => console.log(el))
   return (
     <Stage
       ref={mapStageRef}
@@ -243,6 +244,8 @@ export const Map = ({
             x={el.x}
             y={el.y}
             text={el.text}
+            width={el.width}
+            height={el.height}
             draggable
             fill={el.color}
             fontSize={20 / stage.scale}
